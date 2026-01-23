@@ -1,122 +1,187 @@
-⚛ WRAITH XSS v2.0 — Neural Overdrive ⚛
-<p align="center"> <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=22&pause=900&color=7A3CFF&center=true&vCenter=true&width=800&lines=Neural+XSS+Recon+Engine;Context-Aware+Analysis+%7C+Specter+Core;Built+for+Ethical+Hackers" /> </p> <p align="center"> <img src="https://img.shields.io/badge/version-2.0--Neural-purple" /> <img src="https://img.shields.io/badge/python-3.8+-blue" /> <img src="https://img.shields.io/badge/license-MIT-green" /> <img src="https://img.shields.io/github/stars/Cyber-aditii/WraithXSS?style=social" /> </p>
-🧠 What is WraithXSS?
 
-WraithXSS v2.0 (Neural Overdrive) is a high-performance XSS reconnaissance and analysis engine built around a cinematic, SOC-style command interface.
+<div align="center">
 
-It combines automated recon, parameter intelligence, context-aware reflection analysis, and active XSS validation into a single Neural Scan Pipeline powered by the Specter Core.
+# ⚡ WRAITH XSS ⚡
+### Advanced Auto-Recon & Injection Engine
 
-Designed for authorized security testing, learning, and advanced bug bounty workflows.
+![Python](https://img.shields.io/badge/Python-3.8%2B-blue?style=for-the-badge&logo=python)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Active-brightgreen?style=for-the-badge)
+![Version](https://img.shields.io/badge/Version-2.0.0-purple?style=for-the-badge)
 
-⚡ Neural Overdrive Capabilities (v2.0)
-🧬 Core Neural Systems
+<pre>
+   ██╗    ██╗██████╗  █████╗ ██╗████████╗██╗  ██╗    ██╗  ██╗███████╗███████╗
+   ██║    ██║██╔══██╗██╔══██╗██║╚══██╔══╝██║  ██║    ╚██╗██╔╝██╔════╝██╔════╝
+   ██║ █╗ ██║██████╔╝███████║██║   ██║   ███████║     ╚███╔╝ ███████╗███████╗
+   ██║███╗██║██╔══██╗██╔══██║██║   ██║   ██╔══██║     ██╔██╗ ╚════██║╚════██║
+   ╚███╔███╔╝██║  ██║██║  ██║██║   ██║   ██║  ██║    ██╔╝ ██╗███████║███████║
+    ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝   ╚═╝   ╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚══════╝
+                                                      
+                  [ NEURAL INTELLIGENCE CORE: ONLINE ]
+</pre>
 
-Live Mission Progress — Real-time percentage tracking for every scan phase
+<p align="center">
+  <b>Advanced Recon</b> • <b>Context-Aware Exploitation</b> • <b>Neural WAF Bypass</b> • <b>Cyberpunk Reporting</b>
+</p>
 
-Neural Threads Engine — Multi-threaded execution with live telemetry
+</div>
 
-Context-Aware Analysis — Detects HTML / JS reflection environments
+---
 
-Neural Threat Levels — Dynamic risk scoring per module
+## 📖 Overview
 
-Persistent Neural Profiles — Resume interrupted missions seamlessly
+**WraithXSS** is an elite, all-in-one Cross-Site Scripting (XSS) scanner and reconnaissance framework. It integrates industry-standard tools with a custom "Neural Analysis" engine to detect, verify, and exploit XSS vulnerabilities with near-zero false positives.
 
-🚀 Specter Core — Automated Scan Engine
-Module	Function	Threat Model
-🔥 Full Automated Assault	End-to-end neural scan	Critical
-🌐 Subdomain Discovery	subfinder integration	Low
-📡 Live Host Probing	httpx powered checks	Low
-🧭 URL Harvesting	gau + archives	Medium
-🧩 Parameter Mining	ParamSpider	Medium
-🕷️ Hidden Param Fuzzing	Arjun	High
-🛡️ Reflection & WAF Analysis	Context intelligence	High
-💉 Active XSS Validation	Payload execution	Severe
-📄 Final Report Engine	Structured output	Safe
-🎬 Live Interface (Terminal UI)
-SYSTEM BREACH SIMULATION: SUCCESS  [██████████]
+Designed for modern bug bounty hunters, it features a hyper-stylized "Specter" dashboard, advanced WAF evasion, and automated reporting.
 
-WRAITH XSS v2.0.0
-Advanced Recon • Neural Analysis • Context-Aware Execution
+## ✨ Features
 
-TARGET DOMAIN     : shopdraftkings.com
-NEURAL THREADS    : 10
-SCAN ENGINE       : SPECTER (AUTOMATED) + NEURAL FUZZ
-BOOT TIME         : 21:17:38
+### 🧠 Neural Intelligence Engine
+- **Context-Aware Analysis**: Detects if reflection is in HTML Body, Attribute, JS String, or Variable.
+- **Polymorphic Payloads**: Automatically obfuscates payloads to bypass WAFs (Cloudflare, Akamai, AWS).
+- **Zero False Positives**: Validates every reflection with a specialized canary check.
 
-⚡ SYSTEM OVERRIDE — NEURAL COMMAND INTERFACE ⚡
-01  Full Automated Assault
-02  Subdomain Discovery
-03  Live Host Probing
-04  URL Harvesting
-05  Parameter Mining
-06  Hidden Param Fuzzing
-07  Reflection & WAF Analysis
-08  Active XSS Exploitation
-09  Generate Final Report
+### 🌐 Integrated Recon Suite
+- **Subdomain Discovery**: Powered by `subfinder`.
+- **Live Host Probing**: Powered by `httpx`.
+- **URL Harvesting**: Powered by `gau`.
+- **Parameter Mining**: Powered by `paramspider` and `arjun`.
 
-🕹️ Mission Initialization
+### 🛡️ WAF Detection & Evasion
+- **Auto-Detection**: Identifies 10+ WAFs including Cloudflare, Imperva, and ModSecurity.
+- **Smart Evasion**: Adapts payloads based on the detected WAF type.
 
-One command. No setup drama.
+### 📊 Elite Reporting
+- **Cyberpunk HTML Reports**: High-tech, interactive HTML reports with vulnerability matrices.
+- **Specter Profiles**: Save and restore your scanning sessions/state.
+- **Real-time Webhooks**: distinct Discord & Slack alerts for critical findings.
 
-python3 WraithXSS.py -d target.com
+## 🚀 Quick Start
 
-🧠 Neural Logic
-
-New Mission → Triggers cinematic boot + Neural Menu
-
-Resume Mission → Detects saved profile and restores state
-
-📦 Installation
+```bash
+# Clone the repository
 git clone https://github.com/Cyber-aditii/WraithXSS.git
 cd WraithXSS
-pip install -r requirements.txt
 
-🔧 External Tool Requirements
+# Install Python requirements
+pip3 install -r requirements.txt
 
-Ensure these are available in your PATH:
+# Run the interactive Specter Console
+python3 WraithXSS.py
+```
 
-subfinder
+## 🛠️ Installation
 
-httpx
+### 1. Prerequisites
+Ensure you have the following external tools installed and in your PATH (Go tools recommended):
 
-gau
+```bash
+# Install Go tools
+go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
+go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
+go install -v github.com/lc/gau/v2/cmd/gau@latest
 
-paramspider
+# ParamSpider & Arjun (Python tools)
+pip3 install arjun
+# Note: ParamSpider usually requires cloning its repo, ensure it is runnable as 'paramspider'
+```
 
-arjun
+### 2. Python Dependencies
+```bash
+pip3 install -r requirements.txt
+```
 
-📖 Usage Modes
-⚡ Fully Automated Neural Scan
+## 📖 Usage
+
+### 🎮 Interactive Mode (Recommended)
+Simply run the script without arguments to enter the **Neural Command Interface**:
+```bash
+python3 WraithXSS.py
+```
+**Specter Menu Options:**
+1. **Full Automated Assault**: Runs the complete chain (Subdomains -> Hosts -> URLs -> Mining -> Analysis -> Exploitation).
+2. **Modular Tools**: Run individual steps like Subfinder, HTTPX, or Arjun.
+3. **Profile Management**: Save/Load your session "Neural Profile".
+4. **Configuration**: Set up Discord/Slack webhooks.
+
+### 💻 Command Line Mode
+For quick, non-interactive scans (useful for piping or scripts):
+
+```bash
+# Basic scan targeting a domain
 python3 WraithXSS.py -d example.com
 
-🎯 Manual Module Control
+# Custom output directory
+python3 WraithXSS.py -d example.com -o /path/to/output
 
-Run the tool and select modules via the Neural Command Interface.
+# Tuning performance
+python3 WraithXSS.py -d example.com --threads 20 --timeout 15
 
-📂 Project Structure
+# Disable deep scanning (quicker, less thorough)
+python3 WraithXSS.py -d example.com --no-deep
+```
+
+## ⚙️ Configuration
+
+| Argument | Description | Default |
+|:---|:---|:---|
+| `-d`, `--domain` | Target domain to scan | Required |
+| `-o`, `--output` | Directory to save results | `output/domain_date` |
+| `-t`, `--threads` | Number of threads for concurrent tasks | `10` |
+| `--timeout` | HTTP Timeout in seconds | `30` |
+| `--no-deep` | Skip deep crawling/historical discovery | `False` |
+| `--no-fuzz` | Skip parameter fuzzing (Arjun) | `False` |
+
+## 📂 Project Structure
+
+```
 WraithXSS/
-├── WraithXSS.py          # Neural core engine
-├── requirements.txt     # Python dependencies
-├── payloads.txt         # XSS payload matrix
-├── README.md
-└── LICENSE
+├── WraithXSS.py        # Main engine & entry point
+├── requirements.txt    # Python dependencies
+├── output/             # Generated scan results
+│   └── example.com_.../
+│       ├── report.html     # Interactive Cyberpunk Report
+│       ├── subdomains.txt  # Discovered Subdomains
+│       ├── live_hosts.txt  # Live HTTP Services
+│       ├── all_urls.txt    # Harvested Parameters
+│       └── ...
+└── README.md           # Documentation
+```
 
-⚠️ Ethical Use Disclaimer
-╔══════════════════════════════════════════════════════════════╗
-║                    ⚠️  AUTHORIZED USE ONLY  ⚠️              ║
-╠══════════════════════════════════════════════════════════════╣
-║ WraithXSS is intended for legal and authorized testing only. ║
-║                                                              ║
-║ ✅ Bug bounty programs (with permission)                     ║
-║ ✅ Authorized penetration testing                            ║
-║ ❌ Unauthorized testing is illegal                           ║
-║                                                              ║
-║ The author is NOT responsible for misuse.                    ║
-╚══════════════════════════════════════════════════════════════╝
+## ⚠️ Disclaimer
 
-👩‍💻 Author
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                           ⚠️  ETHICAL USE ONLY  ⚠️                            ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  This tool is intended for AUTHORIZED security testing only:                 ║
+║                                                                              ║
+║  ✅ Bug Bounty Programs (with explicit permission)                           ║
+║  ✅ Authorized Penetration Testing                                           ║
+║  ✅ Security Assessments (with signed authorization)                         ║
+║                                                                              ║
+║  ❌ Unauthorized access is ILLEGAL                                           ║
+║  ❌ Using validated keys without permission is a CRIME                       ║
+║                                                                              ║
+║  The author is NOT responsible for any misuse of this tool.                  ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
 
-Cyber-aditii
-🔗 https://github.com/Cyber-aditii
+## 🤝 Contributing
+Contributions are welcome! Feel free to open issues or submit pull requests.
 
-Built with ⚡ for the ethical hacking & bug bounty community.
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 👨‍💻 Author
+
+**WraithXSS Team**
+
+Made with ❤️ for the Bug Bounty Community
+
+<div align="center">
+  <img src="https://img.shields.io/badge/Keep_Hacking-black?style=for-the-badge&logo=hackthebox" />
+</div>
