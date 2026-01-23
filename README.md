@@ -182,12 +182,6 @@ Contributions are welcome! Feel free to open issues or submit pull requests.
 
 [GitHub](https://github.com/Cyber-aditi)
 
-Keep Learning // Keep Hacking 🦇
-
-If you find this tool useful, please ⭐ star the repository!
-
-Made with ❤️ for the Bug Bounty Community
-
 <div align="center">
   <img src="https://img.shields.io/badge/Keep_Hacking-black?style=for-the-badge&logo=hackthebox" />
 </div>
