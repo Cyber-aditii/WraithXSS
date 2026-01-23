@@ -178,7 +178,13 @@ Contributions are welcome! Feel free to open issues or submit pull requests.
 
 ## 👨‍💻 Author
 
-**WraithXSS Team**
+**Cyber-aditi**
+
+[GitHub](https://github.com/Cyber-aditi)
+
+Keep Learning // Keep Hacking 🦇
+
+If you find this tool useful, please ⭐ star the repository!
 
 Made with ❤️ for the Bug Bounty Community
 
