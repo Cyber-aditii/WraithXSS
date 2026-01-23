@@ -1,48 +1,122 @@
-# ⚛ WRAITH XSS v2.0 (Neural Overdrive) ⚛
+⚛ WRAITH XSS v2.0 — Neural Overdrive ⚛
+<p align="center"> <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=22&pause=900&color=7A3CFF&center=true&vCenter=true&width=800&lines=Neural+XSS+Recon+Engine;Context-Aware+Analysis+%7C+Specter+Core;Built+for+Ethical+Hackers" /> </p> <p align="center"> <img src="https://img.shields.io/badge/version-2.0--Neural-purple" /> <img src="https://img.shields.io/badge/python-3.8+-blue" /> <img src="https://img.shields.io/badge/license-MIT-green" /> <img src="https://img.shields.io/github/stars/Cyber-aditii/WraithXSS?style=social" /> </p>
+🧠 What is WraithXSS?
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python: 3.8+](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
-[![Grit: Elite](https://img.shields.io/badge/Grit-Elite-red.svg)]()
+WraithXSS v2.0 (Neural Overdrive) is a high-performance XSS reconnaissance and analysis engine built around a cinematic, SOC-style command interface.
 
-**WraithXSS** is now in its **Neural Overdrive** stage. It is a high-performance, hyper-stylized XSS recon and auto-injection engine that provides real-time telemetry and advanced polymorphic bypass capabilities.
+It combines automated recon, parameter intelligence, context-aware reflection analysis, and active XSS validation into a single Neural Scan Pipeline powered by the Specter Core.
 
----
+Designed for authorized security testing, learning, and advanced bug bounty workflows.
 
-## ⚡ v2.0 Neural Features
+⚡ Neural Overdrive Capabilities (v2.0)
+🧬 Core Neural Systems
 
-- **Percentage tracking**: Live percentage-based completion for every phase of the mission.
-- **Live Intel Signals**: Real-time telemetry grid showing under-the-hood discovery patterns.
-- **Polymorphic Bypass**: Advanced automated obfuscation to evade modern security filters.
-- **Neural Threat Scoring**: Intelligent assessment of target vulnerability posture.
+Live Mission Progress — Real-time percentage tracking for every scan phase
 
-## 🚀 Elevated Features (Specter Core)
+Neural Threads Engine — Multi-threaded execution with live telemetry
 
-- **Smart Entry Protocol**: Automatically detects saved sessions and triggers cinematic pulse sequence.
-- **Neural Context-Aware Execution**: Analyzed reflection environments for precision exploitation.
-- **Specter Dashboard**: A persistent SOC-style interface for full-spectrum automated assaults.
-- **Assault Webhooks**: Real-time Discord/Slack alerts for confirmed breaches.
-- **Auto-POC Engine**: Generates ready-to-use `curl` one-liner POCs for all findings.
+Context-Aware Analysis — Detects HTML / JS reflection environments
 
-## 🕹️ Mission Initialization
+Neural Threat Levels — Dynamic risk scoring per module
 
-WraithXSS is designed for simplicity and power. You only need **one command**:
+Persistent Neural Profiles — Resume interrupted missions seamlessly
 
-```bash
+🚀 Specter Core — Automated Scan Engine
+Module	Function	Threat Model
+🔥 Full Automated Assault	End-to-end neural scan	Critical
+🌐 Subdomain Discovery	subfinder integration	Low
+📡 Live Host Probing	httpx powered checks	Low
+🧭 URL Harvesting	gau + archives	Medium
+🧩 Parameter Mining	ParamSpider	Medium
+🕷️ Hidden Param Fuzzing	Arjun	High
+🛡️ Reflection & WAF Analysis	Context intelligence	High
+💉 Active XSS Validation	Payload execution	Severe
+📄 Final Report Engine	Structured output	Safe
+🎬 Live Interface (Terminal UI)
+SYSTEM BREACH SIMULATION: SUCCESS  [██████████]
+
+WRAITH XSS v2.0.0
+Advanced Recon • Neural Analysis • Context-Aware Execution
+
+TARGET DOMAIN     : shopdraftkings.com
+NEURAL THREADS    : 10
+SCAN ENGINE       : SPECTER (AUTOMATED) + NEURAL FUZZ
+BOOT TIME         : 21:17:38
+
+⚡ SYSTEM OVERRIDE — NEURAL COMMAND INTERFACE ⚡
+01  Full Automated Assault
+02  Subdomain Discovery
+03  Live Host Probing
+04  URL Harvesting
+05  Parameter Mining
+06  Hidden Param Fuzzing
+07  Reflection & WAF Analysis
+08  Active XSS Exploitation
+09  Generate Final Report
+
+🕹️ Mission Initialization
+
+One command. No setup drama.
+
 python3 WraithXSS.py -d target.com
-```
 
-- **New Mission**: Automatically triggers the cinematic boot and opens the Neural Menu.
-- **Resume Mission**: Automatically detects previous profiles and asks to restore your neural state.
+🧠 Neural Logic
 
-## 📦 Installation
+New Mission → Triggers cinematic boot + Neural Menu
 
-```bash
-git clone https://github.com/youruser/WraithXSS.git
+Resume Mission → Detects saved profile and restores state
+
+📦 Installation
+git clone https://github.com/Cyber-aditii/WraithXSS.git
 cd WraithXSS
 pip install -r requirements.txt
-# Ensure subfinder, httpx, gau, paramspider, and arjun are in your PATH
-```
 
----
+🔧 External Tool Requirements
 
-<p align="center">Built with ⚡ by the <b>WraithXSS Development Team</b></p>
+Ensure these are available in your PATH:
+
+subfinder
+
+httpx
+
+gau
+
+paramspider
+
+arjun
+
+📖 Usage Modes
+⚡ Fully Automated Neural Scan
+python3 WraithXSS.py -d example.com
+
+🎯 Manual Module Control
+
+Run the tool and select modules via the Neural Command Interface.
+
+📂 Project Structure
+WraithXSS/
+├── WraithXSS.py          # Neural core engine
+├── requirements.txt     # Python dependencies
+├── payloads.txt         # XSS payload matrix
+├── README.md
+└── LICENSE
+
+⚠️ Ethical Use Disclaimer
+╔══════════════════════════════════════════════════════════════╗
+║                    ⚠️  AUTHORIZED USE ONLY  ⚠️              ║
+╠══════════════════════════════════════════════════════════════╣
+║ WraithXSS is intended for legal and authorized testing only. ║
+║                                                              ║
+║ ✅ Bug bounty programs (with permission)                     ║
+║ ✅ Authorized penetration testing                            ║
+║ ❌ Unauthorized testing is illegal                           ║
+║                                                              ║
+║ The author is NOT responsible for misuse.                    ║
+╚══════════════════════════════════════════════════════════════╝
+
+👩‍💻 Author
+
+Cyber-aditii
+🔗 https://github.com/Cyber-aditii
+
+Built with ⚡ for the ethical hacking & bug bounty community.
