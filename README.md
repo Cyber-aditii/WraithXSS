@@ -98,6 +98,12 @@ Simply run the script without arguments to enter the **Neural Command Interface*
 ```bash
 python3 WraithXSS.py
 ```
+
+> **Best results on:**
+> * Dynamic web apps
+> * Parameter-heavy endpoints
+> * Bug bounty scoped assets
+
 **Specter Menu Options:**
 1. **Full Automated Assault**: Runs the complete chain (Subdomains -> Hosts -> URLs -> Mining -> Analysis -> Exploitation).
 2. **Modular Tools**: Run individual steps like Subfinder, HTTPX, or Arjun.
@@ -131,6 +137,11 @@ python3 WraithXSS.py -d example.com --no-deep
 | `--timeout` | HTTP Timeout in seconds | `30` |
 | `--no-deep` | Skip deep crawling/historical discovery | `False` |
 | `--no-fuzz` | Skip parameter fuzzing (Arjun) | `False` |
+| `--urls` | Import URLs from file (skip recon) | `None` |
+| `--proxy` | Proxy URL (e.g., http://127.0.0.1:8080) | `None` |
+| `--payloads` | Custom XSS payloads file | `None` |
+| `--json` | Export results to JSON format | `False` |
+| `--quick` | Quick scan mode (faster, less thorough) | `False` |
 
 ## 📂 Project Structure
 

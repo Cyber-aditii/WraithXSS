@@ -43,6 +43,7 @@ import time
 import html
 import base64
 import urllib.parse
+import shutil
 from datetime import datetime
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -69,6 +70,7 @@ try:
     from rich.layout import Layout
     from rich.text import Text
     from rich import print as rprint
+    from rich import box
 except ImportError:
     print("[!] rich not installed. Run: pip install rich")
     sys.exit(1)
@@ -367,11 +369,19 @@ class XSSParamHunter:
         self.deep = args.deep
         self.fuzz = args.fuzz
         
+        # NEW FEATURE: Configuration
+        self.proxy = args.proxy if hasattr(args, 'proxy') and args.proxy else None
+        self.custom_payloads_file = args.payloads if hasattr(args, 'payloads') and args.payloads else None
+        self.export_json = args.json if hasattr(args, 'json') else False
+        self.quick_mode = args.quick if hasattr(args, 'quick') else False
+        self.import_urls_file = args.urls if hasattr(args, 'urls') and args.urls else None
+        
         # Files
         self.subdomains_file = self.output_dir / "subdomains.txt"
         self.live_hosts_file = self.output_dir / "live_hosts.txt"
         self.all_urls_file = self.output_dir / "all_urls.txt"
         self.report_file = self.output_dir / "report.html"
+        self.json_file = self.output_dir / "results.json"
         
         # Data
         self.subdomains = {self.domain}
@@ -383,12 +393,94 @@ class XSSParamHunter:
         self.start_time = datetime.now()
         self.webhooks = {"discord": None, "slack": None}
         self.profile_file = self.output_dir / f"{self.domain}.specter"
+        
+        # Load custom payloads if provided
+        self.custom_payloads = []
+        if self.custom_payloads_file:
+            self._load_custom_payloads()
+        
+        # Load URLs from file if provided
+        if self.import_urls_file:
+            self._load_urls_from_file()
+        
+        self.check_dependencies()
 
+    def check_dependencies(self):
+        """Check if required external tools are installed."""
+        tools = ["subfinder", "httpx", "gau", "paramspider", "arjun"]
+        missing = []
+        
+        console.print(Panel("[bold cyan]Running System Diagnostics...[/bold cyan]", border_style="blue"))
+        
+        for tool in tools:
+            if shutil.which(tool):
+                console.print(f"[green]✔ Found {tool}[/green]")
+            else:
+                missing.append(tool)
+                console.print(f"[red]✖ Missing {tool}[/red]")
+        
+        if missing:
+            console.print(f"\n[bold yellow]⚠ WARNING: The following tools are missing: {', '.join(missing)}[/bold yellow]")
+            console.print("[bold red]Scan quality: DEGRADED[/bold red]")
+            console.print("[dim]Some features will not function correctly.[/dim]\n")
+            time.sleep(2)
+        else:
+            console.print("\n[bold green]✔ All systems nominal.[/bold green]\n")
+            time.sleep(1)
 
     def _ensure_output_dir(self):
         """Ensure the output directory exists before writing."""
         if not self.output_dir.exists():
             self.output_dir.mkdir(parents=True, exist_ok=True)
+
+    def _load_urls_from_file(self):
+        """Load URLs from an external file."""
+        try:
+            with open(self.import_urls_file, 'r') as f:
+                imported_urls = [line.strip() for line in f if line.strip() and '?' in line]
+                self.urls.update(imported_urls)
+                console.print(f"[bold green]📥 Imported {len(imported_urls)} URLs from {self.import_urls_file}[/bold green]")
+        except FileNotFoundError:
+            console.print(f"[bold red]✖ URL file not found: {self.import_urls_file}[/bold red]")
+        except Exception as e:
+            console.print(f"[bold red]✖ Error loading URLs: {e}[/bold red]")
+    
+    def _load_custom_payloads(self):
+        """Load custom XSS payloads from file."""
+        try:
+            with open(self.custom_payloads_file, 'r') as f:
+                self.custom_payloads = [line.strip() for line in f if line.strip()]
+                console.print(f"[bold green]🎯 Loaded {len(self.custom_payloads)} custom payloads from {self.custom_payloads_file}[/bold green]")
+        except FileNotFoundError:
+            console.print(f"[bold red]✖ Payload file not found: {self.custom_payloads_file}[/bold red]")
+        except Exception as e:
+            console.print(f"[bold red]✖ Error loading payloads: {e}[/bold red]")
+
+    def export_to_json(self):
+        """Export all results to a JSON file."""
+        data = {
+            "domain": self.domain,
+            "scan_time": self.start_time.isoformat(),
+            "duration": str(datetime.now() - self.start_time),
+            "statistics": {
+                "subdomains": len(self.subdomains),
+                "live_hosts": len(self.live_hosts),
+                "urls": len(self.urls),
+                "reflections": len(self.reflections),
+                "exploits": len(self.exploits)
+            },
+            "waf_detected": self.waf_info.detected if self.waf_info else False,
+            "waf_type": self.waf_info.waf_type.value if self.waf_info and self.waf_info.detected else None,
+            "subdomains": list(self.subdomains),
+            "live_hosts": list(self.live_hosts),
+            "urls": list(self.urls)[:100],  # Limit to first 100
+            "vulnerabilities": self.exploits
+        }
+        
+        self._ensure_output_dir()
+        with open(self.json_file, 'w') as f:
+            json.dump(data, f, indent=2)
+        console.print(f"[bold green]📊 JSON report exported to: {self.json_file}[/bold green]")
 
     def reconfigure_target(self):
         """Reconfigure the target domain and reset session buffers."""
@@ -511,6 +603,18 @@ class XSSParamHunter:
         console.print(f"\n[bold magenta]                ⚛ THE ULTIMATE ALL-IN-ONE WRAITHXSS v{VERSION} ⚛[/bold magenta]")
         console.print(f"[bold dim]            Advanced Recon • Neural Analysis • Context-Aware Exploitation[/bold dim]")
         console.print(f"[bold cyan]    {'=' * 80}[/bold cyan]\n")
+        
+        console.print(Panel(
+            "[bold white]This tool works best on:[/bold white]\n\n"
+            "[cyan]• Dynamic web apps[/cyan] [dim](sites with forms, search bars, user input)[/dim]\n"
+            "[cyan]• Parameter-heavy endpoints[/cyan] [dim](URLs with ?id=, ?q=, ?page= etc.)[/dim]\n"
+            "[cyan]• Bug bounty targets[/cyan] [dim](authorized testing only!)[/dim]\n\n"
+            "[dim italic]Static sites with no user input have low XSS risk.[/dim italic]",
+            title="[bold yellow]💡 TIP[/bold yellow]",
+            border_style="yellow",
+            expand=False
+        ))
+        console.print("\n")
         
         info_table = Table(box=None, padding=(0, 2))
         info_table.add_column("TARGET DOMAIN", style="bold cyan")
@@ -702,9 +806,15 @@ class XSSParamHunter:
             return sub_list
 
         sub_list = self.run_specter_module("Subdomain Discovery", "Mapping infrastructure layers", subfinder_task)
-        self.preview_results("Subdomains", sub_list)
-        self.print_status("SUBFINDER", f"Found {len(self.subdomains)} total nodes")
-        self.prompt_and_save(self.subdomains, "subdomains.txt", "subdomains")
+        if sub_list:
+            self.preview_results("Subdomains", sub_list)
+            console.print(f"\n[bold green][✓] Subdomain Discovery completed[/bold green]")
+            console.print(f"    [dim]→[/dim] Subdomains found: [bold white]{len(self.subdomains)}[/bold white]\n")
+            self.prompt_and_save(self.subdomains, "subdomains.txt", "subdomains")
+        else:
+            console.print(f"\n[bold yellow][!] Subdomain Discovery completed[/bold yellow]")
+            console.print(f"    [dim]→[/dim] Reason: No subdomains found / Target might be elusive\n")
+            console.print("[bold yellow]⚠ No subdomains discovered. Target might be elusive or down.[/bold yellow]")
 
     def run_httpx(self):
         """Run HTTPX for live host probing with Neural Logic."""
@@ -721,9 +831,15 @@ class XSSParamHunter:
             return host_list
 
         host_list = self.run_specter_module("Host Verification", "Live service validation", httpx_task)
-        self.preview_results("Live Hosts", host_list)
-        self.print_status("HTTPX", f"Acquired {len(self.live_hosts)} active service nodes")
-        self.prompt_and_save(self.live_hosts, "live_hosts.txt", "live hosts")
+        if host_list:
+            self.preview_results("Live Hosts", host_list)
+            console.print(f"\n[bold green][✓] Live Host Verification completed[/bold green]")
+            console.print(f"    [dim]→[/dim] Active hosts: [bold white]{len(self.live_hosts)}[/bold white]\n")
+            self.prompt_and_save(self.live_hosts, "live_hosts.txt", "live hosts")
+        else:
+            console.print(f"\n[bold yellow][!] Live Host Verification completed[/bold yellow]")
+            console.print(f"    [dim]→[/dim] Reason: No live hosts detected\n")
+            console.print("[bold yellow]⚠ No live hosts responding. Check network connection or target status.[/bold yellow]")
 
     def run_gau(self):
         """Run GAU for URL harvesting with Neural Logic."""
@@ -737,9 +853,15 @@ class XSSParamHunter:
             return url_list
 
         url_list = self.run_specter_module("Asset Harvesting", "Public archive reconnaissance", gau_task)
-        self.preview_results("Historical URLs", url_list)
-        self.print_status("GAU", f"Harvested {len(url_list)} prone historical vectors")
-        self.prompt_and_save(set(url_list), "gau_urls.txt", "historical URLs")
+        if url_list:
+            self.preview_results("Historical URLs", url_list)
+            console.print(f"\n[bold green][✓] URL Harvesting completed[/bold green]")
+            console.print(f"    [dim]→[/dim] URLs harvested: [bold white]{len(url_list)}[/bold white]\n")
+            self.prompt_and_save(set(url_list), "gau_urls.txt", "historical URLs")
+        else:
+            console.print(f"\n[bold yellow][!] URL Harvesting completed[/bold yellow]")
+            console.print(f"    [dim]→[/dim] Reason: No historical URLs found\n")
+            console.print("[bold yellow]⚠ Archive mining yielded no results.[/bold yellow]")
 
     def run_paramspider(self):
         """Run ParamSpider for parameter mining with Neural Logic."""
@@ -758,9 +880,15 @@ class XSSParamHunter:
             return new_urls
 
         new_urls = self.run_specter_module("Shadow Mining", "Smart parameter extraction", ps_task)
-        self.preview_results("Spider Vectors", new_urls)
-        self.print_status("PARAMSPIDER", f"Injected {len(new_urls)} smart injection candidates")
-        self.prompt_and_save(set(new_urls), "paramspider.txt", "spider parameters")
+        if new_urls:
+            self.preview_results("Spider Vectors", new_urls)
+            console.print(f"\n[bold green][✓] Parameter Mining completed[/bold green]")
+            console.print(f"    [dim]→[/dim] Parameters found: [bold white]{len(new_urls)}[/bold white]\n")
+            self.prompt_and_save(set(new_urls), "paramspider.txt", "spider parameters")
+        else:
+            console.print(f"\n[bold yellow][!] Parameter Mining completed[/bold yellow]")
+            console.print(f"    [dim]→[/dim] Reason: No injectable parameters detected\n")
+            console.print("[bold yellow]⚠ ParamSpider found no injectable parameters.[/bold yellow]")
 
     def run_arjun(self):
         """Run Arjun for hidden parameter discovery with Neural Logic."""
@@ -782,8 +910,14 @@ class XSSParamHunter:
             return arjun_urls
 
         arjun_urls = self.run_specter_module("Parameter Fuzzing", "Heuristic brute-force discovery", arjun_task)
-        self.print_status("ARJUN", f"Phase complete: {len(arjun_urls)} hidden vectors secured")
-        self.prompt_and_save(set(arjun_urls), "arjun_urls.txt", "hidden parameters")
+        if arjun_urls:
+            console.print(f"\n[bold green][✓] Parameter Fuzzing completed[/bold green]")
+            console.print(f"    [dim]→[/dim] Hidden parameters found: [bold white]{len(arjun_urls)}[/bold white]\n")
+            self.prompt_and_save(set(arjun_urls), "arjun_urls.txt", "hidden parameters")
+        else:
+             console.print(f"\n[bold yellow][!] Parameter Fuzzing completed[/bold yellow]")
+             console.print(f"    [dim]→[/dim] Reason: No hidden parameters discovered\n")
+             console.print("[bold yellow]⚠ Fuzzing yielded no new vectors.[/bold yellow]")
 
 
     def run_analysis(self, automated_log=None):
@@ -796,6 +930,10 @@ class XSSParamHunter:
             if not self.urls:
                 log("No vectors found. Skipping context mapping.", "red")
                 return []
+            
+            if len(self.urls) < 5:
+                 log("[!] Target appears static — XSS surface likely low", "bold yellow")
+                 console.print("\n[bold yellow][!] Target appears static — XSS surface likely low[/bold yellow]")
 
             tester = WAFDetector()
             target = list(self.live_hosts)[0] if self.live_hosts else f"https://{self.domain}"
@@ -824,12 +962,14 @@ class XSSParamHunter:
             return self.reflections
 
         self.run_specter_module("Neural Analysis", "Reflection & WAF Intelligence", analysis_task, automated_log=automated_log)
-        self.print_status("Neural Analyzer", f"Confirmed {len(self.reflections)} valid targets")
+        console.print(f"\n[bold green][✓] Reflection Analysis completed[/bold green]")
+        console.print(f"    [dim]→[/dim] Reflection points found: [bold white]{len(self.reflections)}[/bold white]\n")
 
     def run_exploitation(self, automated_log=None, breach_callback=None):
         """Internal Active XSS Injection with Neural Logic."""
         if not self.reflections:
-            console.print("[bold yellow]⚠ SYSTEM OVERRIDE: No target-reflection patterns available.[/bold yellow]")
+            console.print(f"\n[bold yellow][!] XSS Engine skipped[/bold yellow]")
+            console.print(f"    [dim]→[/dim] Reason: No reflection points found\n")
             return
 
         def exploit_task(log, progress, tid):
@@ -857,6 +997,9 @@ class XSSParamHunter:
         self.run_specter_module("Exploitation Assault", "Executing context-aware payloads", exploit_task, automated_log=automated_log)
         
         if self.exploits:
+            console.print(f"\n[bold red][✓] Exploitation Assault completed[/bold red]")
+            console.print(f"    [dim]→[/dim] Vulnerabilities confirmed: [bold red]{len(self.exploits)}[/bold red]\n")
+            
             # ELITE VULNERABILITY MATRIX
             table = Table(
                 box=None, 
@@ -880,7 +1023,8 @@ class XSSParamHunter:
             console.print(table)
             console.print(f"[bold red]╰{"─" * (width-2)}╯[/bold red]\n")
         else: 
-            self.print_status("Exploiter Engine", "No confirmed execution. Target remains resistant.")
+            console.print(f"\n[bold yellow][!] Exploitation Assault completed[/bold yellow]")
+            console.print(f"    [dim]→[/dim] Reason: Target resistant to injection attempts\n")
 
     def show_menu(self):
         """Interactive Main Menu with high-tech aesthetic."""
@@ -903,12 +1047,14 @@ class XSSParamHunter:
             menu_table.add_row("10", "📡 [bold cyan]Configure Alert Webhooks[/]", "-")
             menu_table.add_row("11", "💾 [bold green]Synchronize Neural Profile[/]", "-")
             menu_table.add_row("12", "📂 [bold yellow]Restore Neural Profile[/]", "-")
-            menu_table.add_row("13", "📡 [bold cyan]Reconfigure Target Domain[/]", "NEW")
+            menu_table.add_row("13", "📡 [bold cyan]Reconfigure Target Domain[/]", "-")
+            menu_table.add_row("14", "📥 [bold green]Import URLs from File[/]", "NEW")
+            menu_table.add_row("15", "📤 [bold blue]Export to JSON[/]", "NEW")
             menu_table.add_row("00", "[bold red]TERMINATE CONNECTION[/bold red]", "-")
             
             console.print(Panel(menu_table, border_style="bold cyan", title="[bold white]MAIN COMMAND MODULE[/bold white]", subtitle="[dim white]V2.0 PRO | SPECTER CORE[/dim white]"))
             
-            choice = Prompt.ask("[bold cyan]Select Protocol[/bold cyan]", choices=["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "00"], default="1")
+            choice = Prompt.ask("[bold cyan]Select Protocol[/bold cyan]", choices=["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "00"], default="1")
 
             # Support both single digit and double digit input
             clean_choice = choice.lstrip('0') if choice != '00' and choice != '0' else '0'
@@ -930,6 +1076,14 @@ class XSSParamHunter:
             elif clean_choice == "11": self.save_profile()
             elif clean_choice == "12": self.load_profile()
             elif clean_choice == "13": self.reconfigure_target()
+            elif clean_choice == "14":
+                url_file = Prompt.ask("[bold cyan]Enter path to URL file[/bold cyan]")
+                if url_file and Path(url_file).exists():
+                    self.import_urls_file = url_file
+                    self._load_urls_from_file()
+                else:
+                    console.print("[bold red]✖ File not found.[/bold red]")
+            elif clean_choice == "15": self.export_to_json()
             elif clean_choice == "0": 
                 console.print("[bold yellow]Terminating Neural Handshake... Goodbye![/bold yellow]")
                 sys.exit(0)
@@ -1133,6 +1287,11 @@ class XSSParamHunter:
             confirm_html = Prompt.ask("Do you also want to generate the Interactive HTML Report?", choices=["y", "n"], default="y")
             if confirm_html.lower() == 'y':
                 self.generate_report()
+            
+            # JSON Export option
+            confirm_json = Prompt.ask("Export results to JSON format?", choices=["y", "n"], default="n")
+            if confirm_json.lower() == 'y':
+                self.export_to_json()
         else:
             console.print("[bold yellow]⚠ SAVE CANCELED: Results will not be stored on disk.[/bold yellow]")
 
@@ -1280,6 +1439,7 @@ class XSSParamHunter:
             current_phase = "RECON_1"
             mission_progress = 5
             progress.update(task_id, description="MAPPING DNS TOPOLOGY", completed=mission_progress)
+            console.print(Panel("[bold cyan]PHASE 1: SUBDOMAIN DISCOVERY[/bold cyan]", border_style="cyan"))
             stream_log("Launching Subdomain Discovery...", "yellow")
             self._run_cmd_live(["subfinder", "-d", self.domain, "-silent"], stream_log, stream_signal, self.subdomains)
             mission_progress = 15
@@ -1288,6 +1448,7 @@ class XSSParamHunter:
             # PHASE 2: HOST_PROBE
             current_phase = "RECON_2"
             progress.update(task_id, description="VALIDATING ASSETS", completed=mission_progress)
+            console.print(Panel("[bold cyan]PHASE 2: LIVE HOST PROBING[/bold cyan]", border_style="cyan"))
             stream_log("Probing active service nodes...", "yellow")
             if not self.subdomains: self.subdomains.add(self.domain)
             self._ensure_output_dir()
@@ -1299,6 +1460,7 @@ class XSSParamHunter:
             # PHASE 3: HARVESTING
             current_phase = "MINING_1"
             progress.update(task_id, description="HARVESTING VECTORS", completed=mission_progress)
+            console.print(Panel("[bold cyan]PHASE 3: URL HARVESTING[/bold cyan]", border_style="cyan"))
             stream_log("Mining URL archives (GAU)...", "yellow")
             self._run_cmd_live(["gau", "--subs", self.domain], stream_log, stream_signal, self.urls)
             mission_progress = 45
@@ -1307,6 +1469,7 @@ class XSSParamHunter:
             # PHASE 4: DOM_MINING
             current_phase = "MINING_2"
             progress.update(task_id, description="DOM FRAGMENTATION", completed=mission_progress)
+            console.print(Panel("[bold cyan]PHASE 4: PARAMETER MINING[/bold cyan]", border_style="cyan"))
             stream_log("Mining internal DOM patterns (ParamSpider)...", "yellow")
             self._run_cmd(["paramspider", "-d", self.domain, "-o", str(self.output_dir / "ps_auto.txt")])
             ps_file = self.output_dir / "ps_auto.txt"
@@ -1321,6 +1484,7 @@ class XSSParamHunter:
             if self.fuzz:
                 current_phase = "FUZZING"
                 progress.update(task_id, description="HEURISTIC DISCOVERY", completed=mission_progress)
+                console.print(Panel("[bold cyan]PHASE 5: PARAMETER FUZZING[/bold cyan]", border_style="cyan"))
                 stream_log("Fuzzing hidden parameters (Arjun)...", "yellow")
                 t_url = list(self.live_hosts)[0] if self.live_hosts else f"http://{self.domain}"
                 self._run_cmd(["arjun", "-u", t_url, "-oT", str(self.output_dir / "ar_auto.txt")])
@@ -1336,6 +1500,7 @@ class XSSParamHunter:
             # PHASE 5: ANALYSIS
             current_phase = "ANALYSIS"
             progress.update(task_id, description="NEURAL ANALYZING", completed=mission_progress)
+            console.print(Panel("[bold cyan]PHASE 6: REFLECTION ANALYSIS[/bold cyan]", border_style="cyan"))
             stream_log("Fingerprinting WAF & context reflections...", "magenta")
             # PASS PROGRESS explicitely if required by internal methods, or handle duplications
             self.run_analysis(automated_log=stream_log) 
@@ -1345,6 +1510,7 @@ class XSSParamHunter:
             # PHASE 6: EXPLOITATION
             current_phase = "EXPLOIT"
             progress.update(task_id, description="EXECUTING ASSAULT", completed=mission_progress)
+            console.print(Panel("[bold cyan]PHASE 7: ACTIVE EXPLOITATION[/bold cyan]", border_style="cyan"))
             stream_log("Deploying context-aware payloads...", "red")
             self.run_exploitation(automated_log=stream_log, breach_callback=stream_breach)
             mission_progress = 100
@@ -1370,10 +1536,24 @@ class XSSParamHunter:
                     vh_table.add_row(f"{idx+1:02}", "Reflected XSS", exploit.get('payload', 'N/A')[:40]+"...")
                 
                 console.print(vh_table)
-                console.print(f"\n[bold white]Logs Saved To:[/] [underline cyan]{self.output_dir}[/]")
             else:
                 console.print(f"\n[bold green]✔ SYSTEM ANALYSIS COMPLETE. NO DIRECT EXPLOIT VECTORS FOUND.[/]")
                 console.print(f"[dim]Note: This does not guarantee invulnerability. Manual review recommended.[/]")
+
+            # --- FINAL SCAN SUMMARY ---
+            console.print("\n")
+            summary_table = Table(box=box.ROUNDED, border_style="bold cyan", title="[bold white]MISSION DEBRIEF[/bold white]")
+            summary_table.add_column("METRIC", style="cyan")
+            summary_table.add_column("COUNT", style="bold white")
+            
+            summary_table.add_row("Subdomains Discovered", str(len(self.subdomains)))
+            summary_table.add_row("Live Hosts Active", str(len(self.live_hosts)))
+            summary_table.add_row("URLs/Vectors Harvested", str(len(self.urls)))
+            summary_table.add_row("Reflection Points", str(len(self.reflections)))
+            summary_table.add_row("Confirmed Exploits", f"[{'red' if self.exploits else 'green'}]{len(self.exploits)}[/]")
+            
+            console.print(summary_table)
+            console.print(f"\n[bold white]Logs Saved To:[/] [underline cyan]{self.output_dir}[/]")
             
             console.print("\n[bold dim]Press Enter to return to main console...[/]")
             input()
@@ -1389,6 +1569,14 @@ def main():
     parser.add_argument("--timeout", type=int, default=30, help="HTTP timeout")
     parser.add_argument("--no-deep", action="store_true", help="Disable deep scan")
     parser.add_argument("--no-fuzz", action="store_true", help="Disable parameter fuzzing")
+    
+    # NEW FEATURES
+    parser.add_argument("--urls", help="Import URLs from file (skip recon)")
+    parser.add_argument("--proxy", help="Proxy URL (e.g., http://127.0.0.1:8080)")
+    parser.add_argument("--payloads", help="Custom XSS payloads file")
+    parser.add_argument("--json", action="store_true", help="Export results to JSON")
+    parser.add_argument("--quick", action="store_true", help="Quick scan mode (faster, less thorough)")
+    
     args = parser.parse_args()
     
     # Check for domain
