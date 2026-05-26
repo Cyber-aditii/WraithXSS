@@ -33,6 +33,9 @@ License: MIT
 
 import os
 import sys
+import warnings
+warnings.filterwarnings("ignore", message="urllib3.*doesn't match", category=DeprecationWarning)
+warnings.filterwarnings("ignore", message="urllib3.*doesn't match")
 import subprocess
 import argparse
 import random
@@ -53,12 +56,15 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 # --- EXTERNAL DEPENDENCY CHECK ---
-try:
-    from colorama import init, Fore, Back, Style
-    init(autoreset=True)
-except ImportError:
-    print("[!] colorama not installed. Run: pip install colorama")
-    sys.exit(1)
+# NOTE: colorama is NOT used — all console output goes through Rich.
+# On Python 3.13, colorama imports ctypes which can segfault on some Linux
+# builds. We define stub constants to avoid importing colorama entirely.
+class _ColorStub:
+    """Stub for colorama Fore/Back/Style — not actually used in this tool."""
+    def __getattr__(self, name):
+        return ""
+Fore = Back = Style = _ColorStub()
+def init(**kwargs): pass
 
 try:
     from rich.console import Console
@@ -294,8 +300,9 @@ class WAFDetector:
         '<details open ontoggle=alert(1)>'
     ]
 
-    def __init__(self, timeout=10):
+    def __init__(self, timeout=10, custom_payloads=None):
         self.timeout = timeout
+        self.custom_payloads = custom_payloads if custom_payloads else []
         self.session = requests.Session()
         self.session.headers.update({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'})
 
@@ -325,6 +332,10 @@ class WAFDetector:
         payloads = self.CONTEXT_PAYLOADS.get(context, self.GENERIC_PAYLOADS)
         if payloads != self.GENERIC_PAYLOADS:
             payloads = payloads + [p for p in self.GENERIC_PAYLOADS if p not in payloads]
+            
+        # Add Custom Payloads
+        if self.custom_payloads:
+            payloads = self.custom_payloads + payloads
 
         for payload in payloads:
             # Neural Overdrive: Polymorphic Bypass
@@ -397,6 +408,9 @@ class XSSParamHunter:
         # Load custom payloads if provided
         self.custom_payloads = []
         if self.custom_payloads_file:
+            self._load_custom_payloads()
+        elif Path("payloads.txt").exists():
+            self.custom_payloads_file = "payloads.txt"
             self._load_custom_payloads()
         
         # Load URLs from file if provided
@@ -977,7 +991,7 @@ class XSSParamHunter:
             log("Deploying polymorphic context-aware payloads with WAF-evasion...", "cyan", advance=15)
             log("Triggering neural handshakes and parsing response JS integrity...", "magenta", advance=15)
             
-            tester = XSSInjectionTester() if 'XSSInjectionTester' in globals() else WAFDetector()
+            tester = XSSInjectionTester() if 'XSSInjectionTester' in globals() else WAFDetector(custom_payloads=self.custom_payloads)
             for i, r in enumerate(self.reflections):
                 log(f"Assaulting data-vector: {r.parameter} [{i+1}/{len(self.reflections)}]", "magenta", advance=(60 / len(self.reflections)))
                 results = tester.test_xss(r.url, r.parameter, r.context)
@@ -1011,6 +1025,7 @@ class XSSParamHunter:
             table.add_column("VULN_ID", style="bold white", justify="center", width=10)
             table.add_column("TARGET_VECTOR", style="bold yellow", justify="left")
             table.add_column("PRECISION_STATE", style="bold green", justify="center", width=18)
+            table.add_column("STATUS", style="bold green", justify="center", width=16)
             table.add_column("EXPLOIT_POC", style="dim cyan", justify="left")
             
             for i, e in enumerate(self.exploits[:12], 1):
